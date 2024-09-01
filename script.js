@@ -1,84 +1,60 @@
-    document.addEventListener('DOMContentLoaded', () => {
-        const header = document.querySelector('header');
-        const backToTop = document.querySelector('.back-to-top');
-        const testimonials = document.querySelectorAll('.testimonial');
-        const contactForm = document.querySelector('.contact-form');
+    // Initialize AOS (Animate On Scroll)
+AOS.init({
+  duration: 1000, // Duration of animations
+  easing: 'ease-in-out', // Easing function
+  once: true, // Animation should happen only once
+});
 
-        // Log elements to debug potential DOM issues
-        console.log('Header:', header);
-        console.log('Back to Top:', backToTop);
+// Handle scroll event for header background change
+window.addEventListener('scroll', () => {
+  const header = document.querySelector('header');
+  if (window.scrollY > 50) {
+    header.classList.add('scrolled');
+  } else {
+    header.classList.remove('scrolled');
+  }
+});
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                console.log('Smooth Scroll Target Element:', targetElement);
-                if (targetElement) {  // Ensure the target element exists
-                    try {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    } catch (error) {
-                        console.error('Error scrolling to target element:', error);
-                    }
-                } else {
-                    console.error('Target element not found for smooth scrolling. ID:', targetId);
-                }
-            });
-        });
+// Implement the testimonial slider functionality
+const testimonials = document.querySelectorAll('.testimonial');
+let currentIndex = 0;
 
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            if (header) {
-                header.classList.toggle('scrolled', window.scrollY > 100);
-            }
-        });
+function showTestimonial(index) {
+  testimonials.forEach((testimonial, i) => {
+    testimonial.classList.toggle('active', i === index);
+  });
+}
 
-        // Back to top button
-        window.addEventListener('scroll', () => {
-            if (backToTop) {
-                backToTop.style.display = window.scrollY > 300 ? 'flex' : 'none';
-            }
-        });
+function nextTestimonial() {
+  currentIndex = (currentIndex + 1) % testimonials.length;
+  showTestimonial(currentIndex);
+}
 
-        backToTop?.addEventListener('click', (e) => {
-            e.preventDefault();
-            try {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } catch (error) {
-                console.error('Error scrolling to top:', error);
-            }
-        });
+function prevTestimonial() {
+  currentIndex = (currentIndex - 1 + testimonials.length) % testimonials.length;
+  showTestimonial(currentIndex);
+}
 
-        // Initialize AOS
-        if (typeof AOS !== 'undefined') {
-            AOS.init({
-                duration: 800,
-                once: true
-            });
-        } else {
-            console.error('AOS library not loaded.');
-        }
+// Automatic testimonial slider
+setInterval(nextTestimonial, 5000);
 
-        // Testimonial slider
-        let currentTestimonial = 0;
-        const totalTestimonials = testimonials.length;
+// Scroll to top button visibility
+const backToTopButton = document.querySelector('.back-to-top');
 
-        function showTestimonial(index) {
-            testimonials.forEach((testimonial, i) => {
-                testimonial.style.display = i === index ? 'block' : 'none';
-            });
-        }
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 300) {
+    backToTopButton.classList.add('visible');
+  } else {
+    backToTopButton.classList.remove('visible');
+  }
+});
 
-        function nextTestimonial() {
-            currentTestimonial = (currentTestimonial + 1) % totalTestimonials;
-            showTestimonial(currentTestimonial);
-        }
-
-        if (totalTestimonials > 0) {
-            showTestimonial(currentTestimonial);
-            setInterval(nextTestimonial, 5000);
-        }
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
     });
+  });
+});
